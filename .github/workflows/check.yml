@@ -9,6 +9,9 @@ jobs:
   check:
     name: Разбор выгрузки и сверка
     runs-on: ubuntu-latest
+    # в исходном репозитории лежит заготовка без решения — гонять нечего,
+    # проверки имеют смысл только в форке кандидата
+    if: github.repository != 'andrewromm/aviatx_interview'
 
     steps:
       - uses: actions/checkout@v4
