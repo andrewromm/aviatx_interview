@@ -1,0 +1,38 @@
+name: Проверка решения
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Разбор выгрузки и сверка
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Установить зависимости
+        run: pip install -r requirements.txt
+
+      - name: Запустить парсер
+        run: python parse.py data/status_report.xlsx > result.json
+
+      - name: Проверить структуру ответа
+        run: python validate.py result.json
+
+      - name: Сверить значения
+        run: python selfcheck.py result.json
+
+      - name: Сохранить результат
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result
+          path: result.json
+          if-no-files-found: ignore

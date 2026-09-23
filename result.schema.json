@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AviaTX status report parse result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "aircraft",
+    "tasks_total",
+    "duplicate_codes",
+    "hours_by_type",
+    "errors",
+    "tasks"
+  ],
+  "properties": {
+    "aircraft": {
+      "type": "string",
+      "description": "Регистрационный номер борта из первой строки листа."
+    },
+    "tasks_total": {
+      "type": "integer",
+      "description": "Количество записей в tasks."
+    },
+    "duplicate_codes": {
+      "type": "array",
+      "description": "Коды тасков, встречающиеся на листе более одного раза. Отсортировано по возрастанию, без повторов.",
+      "items": { "type": "string" }
+    },
+    "hours_by_type": {
+      "type": "object",
+      "description": "Сумма cw_hours по каждому TASK TYPE. Ключи отсортированы по возрастанию.",
+      "additionalProperties": { "type": "number" }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Дефекты данных. Отсортировано по (row, column, raw).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["row", "column", "kind", "raw"],
+        "properties": {
+          "row": { "type": "integer" },
+          "column": { "type": "string" },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invalid_minutes",
+              "number_as_text",
+              "self_reference",
+              "ambiguous_reference",
+              "unknown_reference"
+            ]
+          },
+          "raw": { "type": "string" }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "description": "По одной записи на каждую строку данных листа, в порядке строк.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "row",
+          "code",
+          "type",
+          "cw_date",
+          "cw_date_note",
+          "cw_hours",
+          "cw_cycles",
+          "next_due_date",
+          "next_due_is_manual",
+          "next_due_is_frozen",
+          "primary_row",
+          "related_rows"
+        ],
+        "properties": {
+          "row": {
+            "type": "integer",
+            "description": "Номер строки в Excel (нумерация с 1, шапка = строка 2)."
+          },
+          "code": { "type": "string" },
+          "type": { "type": "string" },
+          "cw_date": {
+            "type": ["string", "null"],
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "cw_date_note": {
+            "type": ["string", "null"],
+            "enum": ["EFF", "EBT", "NA", null]
+          },
+          "cw_hours": { "type": ["number", "null"] },
+          "cw_cycles": { "type": ["integer", "null"] },
+          "next_due_date": {
+            "type": ["string", "null"],
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "next_due_is_manual": { "type": "boolean" },
+          "next_due_is_frozen": { "type": "boolean" },
+          "primary_row": { "type": ["integer", "null"] },
+          "related_rows": {
+            "type": "array",
+            "items": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}
